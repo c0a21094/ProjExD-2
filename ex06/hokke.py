@@ -11,7 +11,7 @@ count1,count2=0,0 #荒井担当分
 def bgm():
     # 音楽ファイルの読み込み
     pg.mixer.music.load("ex06/Floor_Beast.mp3") 
-    pg.mixer.music.play(loops=-1, start=0.0)#ロードした音楽の再生
+    #pg.mixer.music.play(loops=-1, start=0.0)#ロードした音楽の再生
 
 class Screen:
     def __init__(self, title, wh):
@@ -27,7 +27,7 @@ class Screen:
         self.sfc.blit(self.bgi_sfc, self.bgi_rct) # スクリーンに描画
         
     
-class Kabe: # 右側のプレイヤーを作成する関数
+class Kabe: # 右側のプレイヤーを作成するクラス
     def __init__(self ,image,size,xy):  #scr: Screen):
         self.sfc=pg.image.load(image)#画像を取得
         self.sfc=pg.transform.rotozoom(self.sfc, 0, size)#1/4倍にズーム
@@ -39,10 +39,16 @@ class Kabe: # 右側のプレイヤーを作成する関数
     
     def update(self, scr: Screen):
         key_states = pg.key.get_pressed() # 辞書
-        if key_states[pg.K_w]: # wを押すと上に移動
-            self.rct.centery -= 1
-        if key_states[pg.K_s]: # sを押すと下に移動
-            self.rct.centery += 1
+        if self.rct.centerx <= scr.rct.centerx: # 画面の左側にある場合
+            if key_states[pg.K_w]: # wを押すと上に移動
+                self.rct.centery -= 1
+            elif key_states[pg.K_s]: # sを押すと下に移動
+                self.rct.centery += 1
+        if self.rct.centerx >= scr.rct.centerx: # 画面の右側にある場合
+            if key_states[pg.K_UP]: # 上キーを押すと上に移動
+                self.rct.centery -= 1
+            elif key_states[pg.K_DOWN]: # 下キーを押すと下に移動
+                self.rct.centery += 1
         if check_bound(self.rct, scr.rct) != (1, 1): # 領域外だったら
             if key_states[pg.K_w]: 
                 self.rct.centery += 1
@@ -50,29 +56,6 @@ class Kabe: # 右側のプレイヤーを作成する関数
                 self.rct.centery -= 1
         self.blit(scr)
 
-
-class Kabe2: # 左側のプレイヤーを作成する関数
-    def __init__(self ,image,size,xy):  
-        self.sfc=pg.image.load(image)#画像を取得
-        self.sfc=pg.transform.rotozoom(self.sfc, 0, size)#1/4倍にズーム
-        self.rct=self.sfc.get_rect()
-        self.rct.center=xy #位置を設定
-        
-    def blit(self, scr: Screen):
-        scr.sfc.blit(self.sfc, self.rct)
-    
-    def update(self, scr: Screen):
-        key_states = pg.key.get_pressed() # 辞書
-        if key_states[pg.K_UP]: # 上キーを押すと上に移動
-            self.rct.centery -= 1
-        if key_states[pg.K_DOWN]: # 下キーを押すと下に移動
-            self.rct.centery += 1
-        if check_bound(self.rct, scr.rct) != (1, 1): # 領域外だったら
-            if key_states[pg.K_UP]:  
-                self.rct.centery += 1
-            if key_states[pg.K_DOWN]: 
-                self.rct.centery -= 1
-        self.blit(scr)
 
 
 class Score: # スコアを描画する関数
@@ -180,7 +163,7 @@ def main():
     scr = Screen("ホッケーゲーム", (1600, 900))
     bkd = Ball("fig/ball.png", (+3,+3), scr)
     kb = Kabe("fig/line1.png",0.75,(50,450))
-    kb2 = Kabe2("fig/line2.png",0.75,(1550,450))
+    kb2 = Kabe("fig/line2.png",0.75,(1550,450))
     
     #障害物 荒井担当分
     obs=[]
